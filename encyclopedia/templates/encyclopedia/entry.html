@@ -8,9 +8,19 @@
     <h1>Entry</h1>
 
     <ul>
-        {% for entry in entries %}
-            <li>{{ entry }}</li>
-        {% endfor %}
+        {{entry}}
     </ul>
 
 {% endblock %}
+
+
+
+<!--
+   <form action="{% url 'wiki:entry' %}" method="GET">
+        <ul>
+            {% for entry in entries %}
+                <input type="submit" name="entry" value="{{entry}}"></input><br>
+            {% endfor %}
+        </ul>
+    </form>
+    -->

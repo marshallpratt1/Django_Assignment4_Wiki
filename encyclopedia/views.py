@@ -1,3 +1,4 @@
+from multiprocessing import context
 from django.shortcuts import render
 
 from . import util
@@ -13,5 +14,9 @@ def create_page(request):
     pass
 
 
-def entry(request):    
-    return render(request, "encyclopedia/entry.html")
+def entry(request, entry):    
+    target_entry = entry
+    context = {
+        "entry" : target_entry,
+    }
+    return render(request, "encyclopedia/entry.html", context,)
