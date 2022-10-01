@@ -14,8 +14,8 @@ def create_page(request):
     pass
 
 
-def entry(request, entry):    
-    target_entry = entry
+def wiki_entry(request, title):    
+    target_entry = title
     context = {
         "entry" : target_entry,
     }
