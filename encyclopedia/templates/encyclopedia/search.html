@@ -5,10 +5,22 @@
 {% endblock %}
 
 {% block body %}
-    <h1>{{entry}}</h1>
-
-    <ul>        
-        {{entry}} is not available
-    </ul>
+    <h2>Search Results:</h2>
+    {% if entries %}
+        {% if entries|length == 1 %}
+            <h5>"{{target}}" is not a valid entry, but this is pretty close:</h5>
+        {% else %}
+            <h5>"{{target}}" is not a valid entry, but these are pretty close:</h5>
+        {% endif %}
+        <ul>        
+            {% for entry in entries %}
+            <li>
+                <a href="{% url 'wiki:wiki_entry' entry %}"> {{ entry }} </a>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+    <h5>We've searched far and wide, but can't find anything related to "{{target}}", sorry!</h5>
+    {% endif %}
 
 {% endblock %}

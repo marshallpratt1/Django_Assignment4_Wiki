@@ -5,22 +5,7 @@
 {% endblock %}
 
 {% block body %}
-    <h1>{{entry}}</h1>
-
-    <ul>        
-        {{content}}
-    </ul>
+            
+        {{content|safe}}  
 
 {% endblock %}
-
-
-
-<!--
-   <form action="{% url 'wiki:entry' %}" method="GET">
-        <ul>
-            {% for entry in entries %}
-                <input type="submit" name="entry" value="{{entry}}"></input><br>
-            {% endfor %}
-        </ul>
-    </form>
-    -->
