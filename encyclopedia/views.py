@@ -2,6 +2,7 @@ from multiprocessing import context
 from django.shortcuts import redirect, render
 import markdown2, random
 from . import util
+from .forms import NewTaskForm
 
 
 def index(request):
@@ -30,7 +31,6 @@ def search(request):
         "target": target_entry,
         "entries": entries,
     }       
-    print ("Target:", target_entry, entries)
     return render(request, "encyclopedia/search.html", context)
 
 #gets a random entry and displays it
@@ -39,9 +39,32 @@ def random_entry(request):
     return redirect("/wiki/"+entries[random.randint(0, len(entries)-1)])
 
 
+#edit an existing entry
+def edit_entry(request, title):
+    if request.method == "POST":
+        form = NewTaskForm(request.POST)
+        if form.is_valid():
+            new_content = form.cleaned_data["entry_content"]
+        util.save_entry(title, new_content)
+        return redirect("/wiki/"+title)
+
+    else:
+        if title not in util.list_entries():
+            return render(request, "encyclopedia/index.html")
+        content = util.get_entry(title)
+        entry = NewTaskForm(initial={'entry_title': title,
+                                    'entry_content': content})
+        context = {
+            "content" : content,
+            "title" : title,
+            "form": entry
+        }
+        return render(request, "encyclopedia/update.html", context,)
+
+
+
 #displays existing selected wiki entry
 def wiki_entry(request, title):   
-    print ("Search called, title value: ", title) 
     target_entry = title
     if target_entry not in util.list_entries():
         return render(request, "encyclopedia/index.html")
@@ -49,5 +72,6 @@ def wiki_entry(request, title):
     content = markdown2.markdown(content)
     context = {
         "content" : content,
+        "title" : title,
     }
     return render(request, "encyclopedia/entry.html", context,)
