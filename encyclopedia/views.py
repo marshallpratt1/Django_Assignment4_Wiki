@@ -67,6 +67,16 @@ def create_page(request):
             form = NewTitle(request.POST)
             if form.is_valid():
                 new_title = form.cleaned_data["new_title"]
+                cap_entries = util.list_entries()
+                entries = []
+                target = ""
+                for entry in cap_entries:
+                    entries.append(entry.lower())
+                    if new_title.lower() == entry.lower():
+                        target =  entry
+                if new_title.lower() in entries:                   
+                    return render(request, "encyclopedia/error.html", {"entry": "/wiki/"+target})
+                                                                        
             entry_form = NewEntry(initial={'new_title': new_title})
             context = {
                     "form": entry_form, 
@@ -76,13 +86,16 @@ def create_page(request):
         
         #handle creating entry and render the new entry page
         if 'entry-submit' in request.POST:
+            print("In entry submit")
             form = NewEntry(request.POST)
             if form.is_valid():
+                print("Form is valid")
                 new_title = form.cleaned_data["new_title"]
                 new_content = form.cleaned_data["new_content"]
                 new_content = "# "+new_title+"\n"+new_content
                 util.save_entry(new_title, new_content)
                 return redirect("/wiki/"+new_title)
+            else : return redirect("encyclopedia/index.html")
 
     else: #render the title checker form
         title_form = NewTitle()
@@ -103,5 +116,5 @@ def wiki_entry(request, title):
     }
     return render(request, "encyclopedia/entry.html", context,)
 
-def error(request, message):    
-    return render(request, "encyclopedia/error.html", {"message":message})
+def error(request, context):    
+    return render(request, "encyclopedia/error.html", context)
