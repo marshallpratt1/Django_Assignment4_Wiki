@@ -8,8 +8,18 @@
 
 <form action="{% url 'wiki:edit_entry' title %}" method="POST">
     {% csrf_token %}
-    {{form}}
-    <input type="submit"><br>
+   
+        {% for field in form %}
+            {{ field.label_tag }}
+            <br>
+            {{ field }}
+            <br>
+            <p class=entry_help_message style="font-style: italic">{{ field.help_text }}</p>
+            <br><br>
+        {% endfor %}
+        <input class="btn btn-primary" type="submit">       
+        <a href="{% url 'wiki:wiki_entry' title %}" class="btn btn-secondary">Cancel</a> 
+    
 </form>
 
 {% endblock %}

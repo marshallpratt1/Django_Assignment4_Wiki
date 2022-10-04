@@ -2,17 +2,13 @@ from multiprocessing import context
 from django.shortcuts import redirect, render
 import markdown2, random
 from . import util
-from .forms import NewTaskForm
+from .forms import EntryForm, NewEntry, NewTitle
 
 
 def index(request):
     return render(request, "encyclopedia/index.html", {
         "entries": util.list_entries()
     })
-
-
-def create_page(request):
-    pass
 
 #searches current entries for a match, returns closest matches if no direct match
 def search(request):
@@ -41,18 +37,19 @@ def random_entry(request):
 
 #edit an existing entry
 def edit_entry(request, title):
-    if request.method == "POST":
-        form = NewTaskForm(request.POST)
+    if request.method == "POST": #update existing entry
+        form = EntryForm(request.POST)
+        new_content = ""
         if form.is_valid():
             new_content = form.cleaned_data["entry_content"]
         util.save_entry(title, new_content)
         return redirect("/wiki/"+title)
-
     else:
-        if title not in util.list_entries():
-            return render(request, "encyclopedia/index.html")
-        content = util.get_entry(title)
-        entry = NewTaskForm(initial={'entry_title': title,
+        if title in util.list_entries():
+            content = util.get_entry(title)
+        else: 
+            content = ""
+        entry = EntryForm(initial={'entry_title': title,
                                     'entry_content': content})
         context = {
             "content" : content,
@@ -61,6 +58,36 @@ def edit_entry(request, title):
         }
         return render(request, "encyclopedia/update.html", context,)
 
+#create a new entry
+def create_page(request):
+    if request.method == "POST":
+        
+        #handle title form submit
+        if 'title-submit' in request.POST: #render a entry form
+            form = NewTitle(request.POST)
+            if form.is_valid():
+                new_title = form.cleaned_data["new_title"]
+            entry_form = NewEntry(initial={'new_title': new_title})
+            context = {
+                    "form": entry_form, 
+                    "title": new_title,
+                    }
+            return render(request, "encyclopedia/create_page.html", context)
+        
+        #handle creating entry and render the new entry page
+        if 'entry-submit' in request.POST:
+            form = NewEntry(request.POST)
+            if form.is_valid():
+                new_title = form.cleaned_data["new_title"]
+                new_content = form.cleaned_data["new_content"]
+                new_content = "# "+new_title+"\n"+new_content
+                util.save_entry(new_title, new_content)
+                return redirect("/wiki/"+new_title)
+
+    else: #render the title checker form
+        title_form = NewTitle()
+        context = {"form": title_form}
+        return render(request, "encyclopedia/create_page.html", context)
 
 
 #displays existing selected wiki entry
@@ -75,3 +102,6 @@ def wiki_entry(request, title):
         "title" : title,
     }
     return render(request, "encyclopedia/entry.html", context,)
+
+def error(request, message):    
+    return render(request, "encyclopedia/error.html", {"message":message})

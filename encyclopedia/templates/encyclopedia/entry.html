@@ -8,6 +8,6 @@
             
         {{content|safe}}  
         <form action="{% url 'wiki:edit_entry' title %}">
-            <input type="submit" value="Edit {{title}}">
+            <input class="btn btn-primary" type="submit" value="Edit {{title}}">
         </form>
 {% endblock %}

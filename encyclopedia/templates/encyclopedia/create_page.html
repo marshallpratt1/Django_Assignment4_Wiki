@@ -1,0 +1,39 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}
+    Encyclopedia
+{% endblock %}
+
+{% block body %}
+{% if title %}
+    <h2>Create {{ title }}</h2>
+    <form action="{% url 'wiki:create_page' %}" method="POST">
+        {% csrf_token %}
+        {{ form.new_title }}
+        {{ form.new_content }}
+        <br>
+        
+        <p class=entry_help_message style="font-style:italic">Create your entry</p>
+       
+        
+        <input class="btn btn-primary" type="submit" name="entry-submit">       
+        <a href="{% url 'wiki:index' %}" class="btn btn-secondary">Cancel</a> 
+    </form>
+
+
+    {% else %}
+    <h2>Create New Entry</h2>
+
+<form action="{% url 'wiki:create_page' %}" method="POST">
+    {% csrf_token %}
+    {{ form }}
+    <br>
+    
+    <p class=entry_help_message style="font-style:italic">Verify your new entry title</p>
+   
+    
+    <input class="btn btn-primary" type="submit" name="title-submit">       
+    <a href="{% url 'wiki:index' %}" class="btn btn-secondary">Cancel</a> 
+</form>
+{% endif %}
+{% endblock %}
