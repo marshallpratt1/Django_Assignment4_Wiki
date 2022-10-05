@@ -1,5 +1,6 @@
 from multiprocessing import context
 from django.shortcuts import redirect, render
+from django.contrib import messages
 import markdown2, random
 from . import util
 from .forms import EntryForm, NewEntry, NewTitle
@@ -74,7 +75,7 @@ def create_page(request):
                     entries.append(entry.lower())
                     if new_title.lower() == entry.lower():
                         target =  entry
-                if new_title.lower() in entries:                   
+                if new_title.lower() in entries:    
                     return render(request, "encyclopedia/error.html", {"entry": "/wiki/"+target})
                                                                         
             entry_form = NewEntry(initial={'new_title': new_title})
@@ -94,7 +95,7 @@ def create_page(request):
                 new_content = form.cleaned_data["new_content"]
                 new_content = "# "+new_title+"\n"+new_content
                 util.save_entry(new_title, new_content)
-                return redirect("/wiki/"+new_title)
+                return redirect("wiki:wiki_entry",new_title)
             else : return redirect("encyclopedia/index.html")
 
     else: #render the title checker form
@@ -116,5 +117,10 @@ def wiki_entry(request, title):
     }
     return render(request, "encyclopedia/entry.html", context,)
 
+def error(request):
+    return render(request, "encyclopedia/error.html")
+
+"""
 def error(request, context):    
     return render(request, "encyclopedia/error.html", context)
+"""
