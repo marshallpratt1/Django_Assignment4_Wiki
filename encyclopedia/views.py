@@ -13,7 +13,9 @@ def index(request):
 
 #searches current entries for a match, returns closest matches if no direct match
 def search(request):
-    target_entry = request.GET["search_query"]    
+    target_entry = request.GET["search_query"]   
+    # slightly easier the walking the list of entries: 
+    # if util.get_content(title) != None: ... 
     for entry in util.list_entries():
         if target_entry.lower() == entry.lower():
             target_entry = entry
@@ -21,6 +23,7 @@ def search(request):
     entries = []
     for entry in util.list_entries():
         if target_entry.lower() in entry.lower() or entry.lower() in target_entry.lower():
+            # very nice!
             entries.append(entry)
     if len(entries) == 0:
         entries = None
@@ -45,6 +48,8 @@ def edit_entry(request, title):
             new_content = form.cleaned_data["entry_content"]
         util.save_entry(title, new_content)
         return redirect("/wiki/"+title)
+        # better done as: return redirect('wiki', title=title). subtle difference, but 
+        # if there are multiple args, your way locks you into the URL structure e.g., /wiki/<str:entry>/<str:category>
     else:
         if title in util.list_entries():
             content = util.get_entry(title)
@@ -94,6 +99,7 @@ def create_page(request):
                 new_title = form.cleaned_data["new_title"]
                 new_content = form.cleaned_data["new_content"]
                 new_content = "# "+new_title+"\n"+new_content
+                #  cool! until the user already starts his entry with #title :)
                 util.save_entry(new_title, new_content)
                 return redirect("wiki:wiki_entry",new_title)
             else : return redirect("encyclopedia/index.html")
@@ -108,7 +114,9 @@ def create_page(request):
 def wiki_entry(request, title):   
     target_entry = title
     if target_entry not in util.list_entries():
-        return render(request, "encyclopedia/index.html")
+        # wrong - you need to redirect to index, or else the displayed page won't show anything
+        # were you to rendex index.html, you'd need to pass the context of "entries": util.list_entries()
+        return render(request, "encyclopedia/index.html", {"entries": util.list_entries()})
     content = util.get_entry(title)
     content = markdown2.markdown(content)
     context = {
